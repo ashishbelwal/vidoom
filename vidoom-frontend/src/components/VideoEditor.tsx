@@ -30,8 +30,8 @@ const VideoEditor = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
   }, [selectedVideo]);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center">
-      <div className="basis-3/4 w-full h-screen flex justify-center items-start border-none p-4">
+    <div className="basis-3/4 h-full flex flex-col justify-center items-center ">
+      <div className="basis-full w-full h-screen flex justify-center items-start border-none p-4">
         <div className="w-full flex justify-center items-center  rounded overflow-hidden p-2 border-1 border-[#212121]">
           <div className="w-full max-w-[800px] aspect-video  bg-[#ffffff10]">
             {selectedVideo?.video && (

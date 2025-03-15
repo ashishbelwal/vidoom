@@ -108,7 +108,7 @@ const VideoControllers = ({
             </p>
           </div>
         </div>
-        <Slider
+        {/* <Slider
           classNames={{
             base: "max-w-full gap-3",
             track: "border-s-secondary-100",
@@ -128,7 +128,7 @@ const VideoControllers = ({
           onChange={(value) =>
             handleSliderChange(Array.isArray(value) ? value[0] : value)
           }
-        />
+        /> */}
       </div>
       <div className="w-full h-full bg-red-500"></div>
     </div>
