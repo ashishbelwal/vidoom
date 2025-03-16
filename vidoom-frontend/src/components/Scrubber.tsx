@@ -1,25 +1,47 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import TimelineMarkers from "./TimelineMarkers";
+import { useEffect, useRef, useState } from "react";
+import Frames from "./frames";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const pixelToSecond = (pixels: number) => {
+  return pixels / 50;
+};
+
+const secondToPixel = (seconds: number) => {
+  return seconds * 50;
+};
 
 const Scrubber = ({
   frameImages,
   loader,
-  currentTime,
-  setCurrentTime,
+  videoElement,
 }: {
   frameImages: any;
   loader: boolean;
-  currentTime: number;
-  setCurrentTime: (time: number) => void;
+  videoElement: HTMLVideoElement;
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [currentPosition, setCurrentPosition] = useState(0);
+  const updateVideo = (position: number) => {
+    videoElement.currentTime = pixelToSecond(position);
+  };
+
+  useEffect(() => {
+    const handleTimeUpdate = () => {
+      let markerCurrentPosition = secondToPixel(videoElement.currentTime);
+      setCurrentPosition(markerCurrentPosition);
+    };
+    videoElement.addEventListener("timeupdate", handleTimeUpdate);
+    return () => {
+      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [videoElement]);
   return (
     <div className="p-4 max-w-[1400px] w-full h-[200px] bg-[#000000]">
       <div className=" h-full w-full overflow-hidden overflow-x-auto">
         <TimelineMarkers
           frameLength={frameImages.length > 30 ? 30 : frameImages.length}
+          videoElement={videoElement}
         />
         {loader ? (
           <div className="flex w-full h-12 bg-[#ffffff0f]  overflow-hidden">
@@ -42,19 +64,26 @@ const Scrubber = ({
             />
           </div>
         ) : (
-          <div className="flex w-full h-[30px] bg-[#ffffff0f] overflow-hidden">
-            {frameImages.map((frameImage: any, index: number) => (
-              <div
-                key={index}
-                className={`flex items-center gap-2 fixed-50 h-auto`}
-                style={{
-                  backgroundImage: `url('${API_URL}${frameImage.url}')`,
-                  backgroundSize: "contain",
-                  backgroundPosition: "top",
-                  backgroundRepeat: "no-repeat",
-                }}
-              ></div>
-            ))}
+          <div
+            ref={containerRef}
+            className="flex w-full h-[30px] bg-[#ffffff0f] overflow-hidden cursor-pointer relative"
+            onClick={(e) => {
+              const position =
+                e.clientX -
+                (containerRef.current?.getBoundingClientRect().left ?? 0);
+              updateVideo(position);
+            }}
+          >
+            <motion.div
+              className={`absolute top-0  w-[1px] h-full bg-white`}
+              animate={{
+                left: `${currentPosition + 8}px`,
+              }}
+              transition={{
+                speed: 10,
+              }}
+            ></motion.div>
+            <Frames frameImages={frameImages} />
           </div>
         )}
       </div>

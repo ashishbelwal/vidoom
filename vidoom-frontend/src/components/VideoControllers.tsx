@@ -27,7 +27,6 @@ const VideoControllers = ({
 }: {
   videoElement: HTMLVideoElement;
 }) => {
-  const [currentSliderValue, setCurrentSliderValue] = useState(0);
   const lastUpdateRef = useRef(0);
 
   const forwardJump = () => {
@@ -48,9 +47,6 @@ const VideoControllers = ({
     const handleTimeUpdate = () => {
       const now = performance.now();
       if (now - lastUpdateRef.current >= UPDATE_INTERVAL) {
-        const currentTimePercentage =
-          (videoElement.currentTime / videoElement.duration) * 100;
-        setCurrentSliderValue(currentTimePercentage);
         lastUpdateRef.current = now;
       }
     };
@@ -61,10 +57,6 @@ const VideoControllers = ({
       videoElement.removeEventListener("timeupdate", handleTimeUpdate);
     };
   }, [videoElement]);
-
-  const handleSliderChange = (value: number) => {
-    videoElement.currentTime = (value / 100) * videoElement.duration;
-  };
 
   return (
     <div className="w-full h-full flex flex-col p-4">

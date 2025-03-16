@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Triangle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -25,18 +26,50 @@ const Scale = ({ num }: { num: number }) => {
 };
 
 const secondToPixel = (seconds: number) => {
-  return seconds * 10;
+  return seconds * 50;
+};
+const pixelToSecond = (pixels: number) => {
+  return pixels / 50;
 };
 
-const TimelineMarkers = ({ frameLength }: { frameLength: number }) => {
+const TimelineMarkers = ({
+  frameLength,
+  videoElement,
+}: {
+  frameLength: number;
+  videoElement: HTMLVideoElement;
+}) => {
   const [markers, setMarkers] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Refs to track dragging state and smooth scroll values.
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
   const targetScrollLeftRef = useRef(0);
+
+  const [currentPosition, setCurrentPosition] = useState(0);
+
+  useEffect(() => {
+    const handleTimeUpdate = () => {
+      let markerCurrentPosition = secondToPixel(videoElement.currentTime);
+      setCurrentPosition(markerCurrentPosition);
+    };
+    videoElement.addEventListener("timeupdate", handleTimeUpdate);
+    return () => {
+      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [videoElement]);
+
+  const updateTimeFromPosition = (position: number) => {
+    const MaxWidth = frameLength * 50;
+
+    if (position > MaxWidth) {
+      setCurrentPosition(MaxWidth);
+      videoElement.currentTime = pixelToSecond(MaxWidth);
+    } else {
+      setCurrentPosition(position);
+      videoElement.currentTime = pixelToSecond(position);
+    }
+  };
 
   useEffect(() => {
     const element = containerRef.current;
@@ -119,11 +152,23 @@ const TimelineMarkers = ({ frameLength }: { frameLength: number }) => {
         whiteSpace: "nowrap",
         cursor: "grab",
       }}
+      onClick={(e) => {
+        const position =
+          e.clientX - (containerRef.current?.getBoundingClientRect().left ?? 0);
+        updateTimeFromPosition(position);
+      }}
     >
-      <Triangle
-        className={`absolute top-0 left-0 w-4 h-4 rotate-180 translate-x-[-50%]  text-white`}
-        fill="white"
-      />
+      <motion.div
+        className={`absolute top-0  w-4 h-4 rotate-180 translate-x-[-50%]  text-white`}
+        animate={{
+          left: `${currentPosition + 12}px`,
+        }}
+        transition={{
+          speed: 10,
+        }}
+      >
+        <Triangle fill="white" />
+      </motion.div>
       {markers.map((marker) => (
         <div
           key={marker}

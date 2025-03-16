@@ -16,6 +16,12 @@ const VideoEditor = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
   const [loader, setLoader] = useState(true);
   const [frameImages, setFrameImages] = useState<string[]>([]);
 
+  useEffect(() => {
+    if (videoElement) {
+      console.log(videoElement.currentTime);
+    }
+  }, [videoElement]);
+
   const getFrameImages = async () => {
     if (!selectedVideo?.videoName) return;
     const res = await axios.get(
@@ -48,12 +54,13 @@ const VideoEditor = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
       </div>
       {videoElement && <VideoControllers videoElement={videoElement} />}
 
-      <Scrubber
-        frameImages={frameImages}
-        loader={loader}
-        currentTime={0}
-        setCurrentTime={() => {}}
-      />
+      {videoElement && (
+        <Scrubber
+          frameImages={frameImages}
+          loader={loader}
+          videoElement={videoElement}
+        />
+      )}
     </div>
   );
 };
