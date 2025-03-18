@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
-
 const API_URL = import.meta.env.VITE_API_URL;
-const frames = ({ frameImages }: { frameImages: any[] }) => {
-  const [isClipVideo, setIsClipVideo] = useState(false);
-  useEffect(() => {
-    console.log(frameImages);
-  }, [frameImages]);
+const frames = ({
+  frameImages,
+  clipVideo,
+  timeRange,
+  setTimeRange,
+}: {
+  frameImages: any[];
+  clipVideo: boolean;
+  timeRange: number[];
+  setTimeRange: (timeRange: number[]) => void;
+}) => {
   return (
     <>
       {frameImages.map((frameImage: any, index: number) => (

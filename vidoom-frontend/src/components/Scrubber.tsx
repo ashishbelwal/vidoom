@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import TimelineMarkers from "./TimelineMarkers";
 import { useEffect, useRef, useState } from "react";
 import Frames from "./frames";
+import { Slider } from "@heroui/react";
 
 const pixelToSecond = (pixels: number) => {
   return pixels / 50;
@@ -15,19 +16,28 @@ const Scrubber = ({
   frameImages,
   loader,
   videoElement,
+  clipVideo,
+  timeRange,
+  setTimeRange,
 }: {
   frameImages: any;
   loader: boolean;
   videoElement: HTMLVideoElement;
+  clipVideo: boolean;
+  timeRange: number[];
+  setTimeRange: (timeRange: number[]) => void;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPosition, setCurrentPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
   const updateVideo = (position: number) => {
     videoElement.currentTime = pixelToSecond(position);
   };
 
   useEffect(() => {
     const handleTimeUpdate = () => {
+      setTimeRange([0, videoElement.duration]);
+      setDuration(videoElement.duration);
       let markerCurrentPosition = secondToPixel(videoElement.currentTime);
       setCurrentPosition(markerCurrentPosition);
     };
@@ -67,12 +77,12 @@ const Scrubber = ({
           <div
             ref={containerRef}
             className="flex w-full h-[30px] bg-[#ffffff0f] overflow-hidden cursor-pointer relative"
-            onClick={(e) => {
-              const position =
-                e.clientX -
-                (containerRef.current?.getBoundingClientRect().left ?? 0);
-              updateVideo(position);
-            }}
+            // onClick={(e) => {
+            //   const position =
+            //     e.clientX -
+            //     (containerRef.current?.getBoundingClientRect().left ?? 0);
+            //   updateVideo(position);
+            // }}
           >
             <motion.div
               className={`absolute top-0  w-[1px] h-full bg-white`}
@@ -83,7 +93,26 @@ const Scrubber = ({
                 speed: 10,
               }}
             ></motion.div>
-            <Frames frameImages={frameImages} />
+            <Frames
+              frameImages={frameImages}
+              clipVideo={clipVideo}
+              timeRange={timeRange}
+              setTimeRange={setTimeRange}
+            />
+            {videoElement && clipVideo && (
+              <div className="clipVideo">
+                <Slider
+                  className={` max-w-[${duration * 50 + 10}px]`}
+                  formatOptions={{ style: "currency", currency: "USD" }}
+                  label="Select a budget"
+                  maxValue={duration}
+                  minValue={0}
+                  step={0.1}
+                  value={timeRange}
+                  onChange={(value) => setTimeRange(value as number[])}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

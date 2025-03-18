@@ -8,14 +8,27 @@ function App() {
     video: "",
     videoName: "",
   });
-
+  const [clipVideo, setClipVideo] = useState(false);
+  const [timeRange, setTimeRange] = useState([0, 0]);
   return (
     <div className="h-screen w-screen overflow-hidden">
       <Navbar />
 
       <div className="flex">
-        <VideoEditor selectedVideo={selectedVideo} />
-        <ControlOptions setSelectedVideo={setSelectedVideo} />
+        <VideoEditor
+          selectedVideo={selectedVideo}
+          clipVideo={clipVideo}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+        />
+        <ControlOptions
+          setSelectedVideo={setSelectedVideo}
+          selectedVideo={selectedVideo}
+          setClipVideo={setClipVideo}
+          clipVideo={clipVideo}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+        />
       </div>
     </div>
   );

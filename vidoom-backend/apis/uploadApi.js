@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { exec } = require("child_process");
+const { exec, spawn } = require("child_process");
 
 const uploadRouter = express.Router();
 
@@ -98,7 +98,6 @@ uploadRouter.get("/fetch-files", (req, res) => {
     }
 
     const files = fs.readdirSync(uploadDir);
-    console.log({files})
     const fileDetails = files
       .map((folder) => {
         const folderPath = path.join(uploadDir, folder);
@@ -153,6 +152,127 @@ uploadRouter.get("/frames/:videoName", (req, res) => {
   }));
 
   res.status(200).json({ frames: frameFiles });
+});
+
+uploadRouter.post("/trim", (req, res) => {
+  const { videoUrl, start, end } = req.body;
+  console.log({ videoUrl, start, end });
+
+  // Validate inputs
+  if (!videoUrl || start === undefined || end === undefined) {
+    return res.status(400).json({ error: "Missing required parameters" });
+  }
+
+  const startSec = parseFloat(start);
+  const endSec = parseFloat(end);
+  if (isNaN(startSec) || isNaN(endSec) || startSec >= endSec) {
+    return res.status(400).json({ error: "Invalid start or end time" });
+  }
+
+  // Construct file paths
+  const videoName = path.parse(videoUrl).name; // e.g., "1741853539568"
+  const videoFolder = path.resolve("uploads", videoName).replace(/\\/g, "/");
+  const videoPath = path.resolve(videoFolder, `${videoName}.mp4`).replace(/\\/g, "/");
+
+  // New trimmed folder and file structure
+  const timestamp = Date.now();
+  const trimmedFolderName = `trimmed_${videoName}_${timestamp}`;
+  const trimmedFolderPath = path.resolve("uploads", trimmedFolderName).replace(/\\/g, "/");
+  const trimmedVideoPath = path.resolve(trimmedFolderPath, `${trimmedFolderName}.mp4`).replace(/\\/g, "/");
+  const framesDir = path.resolve(trimmedFolderPath, "frames").replace(/\\/g, "/");
+
+  // Check if input video exists
+  if (!fs.existsSync(videoPath)) {
+    return res.status(404).json({ error: "Video file not found" });
+  }
+
+  // Create trimmed folder
+  if (!fs.existsSync(trimmedFolderPath)) {
+    fs.mkdirSync(trimmedFolderPath, { recursive: true });
+  }
+
+  // Calculate duration and approximate frames for trimming
+  const durationSec = endSec - startSec;
+  const framerate = 30;
+  const numBuffers = Math.floor(durationSec * framerate);
+
+  // GStreamer command (video-only)
+  const args = [
+    "-e",
+    "filesrc",
+    `location=${videoPath}`,
+    `num-buffers=${numBuffers}`,
+    "!",
+    "qtdemux",
+    "name=demux",
+    "demux.video_0",
+    "!",
+    "queue",
+    "!",
+    "decodebin",
+    "!",
+    "videoconvert",
+    "!",
+    "videoscale",
+    "!",
+    "videorate",
+    "!",
+    `video/x-raw,framerate=${framerate}/1`,
+    "!",
+    "x264enc",
+    "!",
+    "mp4mux",
+    "!",
+    "filesink",
+    `location=${trimmedVideoPath}`,
+  ];
+
+  const gstProcess = spawn("gst-launch-1.0", args);
+
+  let stdoutData = "";
+  let stderrData = "";
+
+  gstProcess.stdout.on("data", (data) => {
+    stdoutData += data.toString();
+    console.log("stdout:", data.toString());
+  });
+
+  gstProcess.stderr.on("data", (data) => {
+    stderrData += data.toString();
+    console.error("stderr:", data.toString());
+  });
+
+  gstProcess.on("close", (code) => {
+    console.log("Trim process exited with code:", code);
+    if (code !== 0) {
+      return res.status(500).json({
+        error: "Failed to trim video",
+        details: stderrData || "Unknown error",
+      });
+    }
+
+    // Extract frames from the trimmed video
+    extractFrames(trimmedVideoPath, framesDir)
+      .then((framesDir) => {
+        return res.status(200).json({
+          message: "Video trimmed and frames extracted successfully",
+          trimmedVideoUrl: trimmedVideoPath,
+          framesFolder: framesDir,
+        });
+      })
+      .catch((error) => {
+        console.error("Frame extraction failed:", error);
+        return res.status(500).json({
+          error: "Failed to extract frames",
+          details: error,
+        });
+      });
+  });
+
+  gstProcess.on("error", (err) => {
+    console.error("Failed to start trim process:", err.message);
+    return res.status(500).json({ error: "Trim process failed to start", details: err.message });
+  });
 });
 
 module.exports = uploadRouter;

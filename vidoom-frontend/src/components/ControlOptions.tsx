@@ -1,6 +1,10 @@
-import { Card, CardBody, Tab, Tabs } from "@heroui/react";
+import { Button, Card, CardBody, Tab, Tabs } from "@heroui/react";
 import Upload from "./Upload";
 import VideoFilesList from "./VideoFilesList";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface SelectedVideo {
   video: string;
@@ -9,9 +13,42 @@ interface SelectedVideo {
 
 const ControlOptions = ({
   setSelectedVideo,
+  setClipVideo,
+  clipVideo,
+  selectedVideo,
+  setTimeRange,
+  timeRange,
 }: {
   setSelectedVideo: (video: SelectedVideo) => void;
+  setClipVideo: (clipVideo: boolean) => void;
+  clipVideo: boolean;
+  selectedVideo: SelectedVideo;
+  setTimeRange: (timeRange: number[]) => void;
+  timeRange: number[];
 }) => {
+  const [seed, setSeed] = useState(1);
+  const reset = () => {
+    setSeed(Math.random());
+  };
+  const trimVideo = async () => {
+    const videoUrl = selectedVideo.video;
+    const start = timeRange[0];
+    const end = timeRange[1];
+    const response = await axios.post(`${API_URL}/upload/trim`, {
+      videoUrl,
+      start,
+      end,
+    });
+    if (response.status === 200) {
+      const videoUrl = response.data;
+      console.log(videoUrl);
+      // setSelectedVideo({
+      //   video: response.data.videoUrl,
+      //   videoName: response.data.videoName,
+      // });
+    }
+    reset();
+  };
   return (
     <div className="basis-1/4 border-l border-white/10 w-full h-screen p-4">
       <div className="flex w-full flex-col">
@@ -19,26 +56,30 @@ const ControlOptions = ({
           <Tab key="photos" title="Upload">
             <div className="w-full h-full flex flex-col gap-4">
               <Upload />
-              <VideoFilesList setSelectedVideo={setSelectedVideo} />
+              <VideoFilesList
+                setSelectedVideo={setSelectedVideo}
+                updatedKey={seed}
+              />
             </div>
           </Tab>
-          <Tab key="music" title="Music">
-            <Card>
-              <CardBody>
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur.
-              </CardBody>
-            </Card>
-          </Tab>
-          <Tab key="videos" title="Videos">
-            <Card>
-              <CardBody>
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                qui officia deserunt mollit anim id est laborum.
-              </CardBody>
-            </Card>
+          <Tab key="edit" title="Edit">
+            <div className="w-full h-full flex flex-col gap-4">
+              {!selectedVideo?.videoName && (
+                <p className="text-white/50 text-sm text-left">
+                  Please select a video to edit
+                </p>
+              )}
+              <Button
+                onPress={() => setClipVideo(!clipVideo)}
+                className="max-w-fit"
+                isDisabled={!selectedVideo?.videoName}
+              >
+                {clipVideo ? "Exit" : "Clip Video"}
+              </Button>
+            </div>
+            {clipVideo && (
+              <Button onPress={() => trimVideo()}>Trim Video</Button>
+            )}
           </Tab>
         </Tabs>
       </div>

@@ -15,8 +15,10 @@ interface SelectedVideo {
 
 const VideoFilesList = ({
   setSelectedVideo,
+  updatedKey,
 }: {
   setSelectedVideo: (video: SelectedVideo) => void;
+  updatedKey: number;
 }) => {
   const [fileList, setFileList] = useState<FileList[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ const VideoFilesList = ({
 
   useEffect(() => {
     getFiles();
-  }, []);
+  }, [updatedKey]);
 
   return (
     <div className="w-full h-full flex gap-4 mb-4 flex-wrap">

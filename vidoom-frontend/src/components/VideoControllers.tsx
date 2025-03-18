@@ -1,5 +1,4 @@
-import { Slider, Tooltip } from "@heroui/react";
-import moment from "moment";
+import { Tooltip } from "@heroui/react";
 import { ChevronsLeftIcon, ChevronsRightIcon, PlayIcon } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
@@ -28,6 +27,8 @@ const VideoControllers = ({
   videoElement: HTMLVideoElement;
 }) => {
   const lastUpdateRef = useRef(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const forwardJump = () => {
     videoElement.currentTime += JUMP_TIME;
@@ -45,6 +46,8 @@ const VideoControllers = ({
 
   useEffect(() => {
     const handleTimeUpdate = () => {
+      setCurrentTime(videoElement.currentTime);
+      setDuration(videoElement.duration);
       const now = performance.now();
       if (now - lastUpdateRef.current >= UPDATE_INTERVAL) {
         lastUpdateRef.current = now;
@@ -91,36 +94,13 @@ const VideoControllers = ({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <p className="text-sm text-default-600">
-              {formatTime(videoElement.currentTime)}
+              {formatTime(currentTime)}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-default-600">
-              {formatTime(videoElement.duration)}
-            </p>
+            <p className="text-sm text-default-600">{formatTime(duration)}</p>
           </div>
         </div>
-        {/* <Slider
-          classNames={{
-            base: "max-w-full gap-3",
-            track: "border-s-secondary-100",
-            filler: "bg-gradient-to-r from-purple-600 to-blue-600",
-          }}
-          value={currentSliderValue}
-          aria-label="track"
-          renderThumb={(props) => (
-            <div
-              {...props}
-              className="group p-1 top-1/2 bg-background border-small border-default-200 dark:border-default-400/50 shadow-medium rounded-full cursor-grab data-[dragging=true]:cursor-grabbing"
-            >
-              <span className="transition-transform bg-gradient-to-r from-purple-600 to-blue-600 shadow-small  rounded-full w-5 h-5 block group-data-[dragging=true]:scale-80" />
-            </div>
-          )}
-          size="sm"
-          onChange={(value) =>
-            handleSliderChange(Array.isArray(value) ? value[0] : value)
-          }
-        /> */}
       </div>
       <div className="w-full h-full bg-red-500"></div>
     </div>

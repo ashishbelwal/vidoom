@@ -9,7 +9,17 @@ interface SelectedVideo {
   videoName: string;
 }
 
-const VideoEditor = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
+const VideoEditor = ({
+  selectedVideo,
+  clipVideo,
+  timeRange,
+  setTimeRange,
+}: {
+  selectedVideo: SelectedVideo;
+  clipVideo: boolean;
+  timeRange: number[];
+  setTimeRange: (timeRange: number[]) => void;
+}) => {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(
     null
   );
@@ -59,6 +69,9 @@ const VideoEditor = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
           frameImages={frameImages}
           loader={loader}
           videoElement={videoElement}
+          clipVideo={clipVideo}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
         />
       )}
     </div>
