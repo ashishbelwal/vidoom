@@ -275,4 +275,26 @@ uploadRouter.post("/trim", (req, res) => {
   });
 });
 
+uploadRouter.get("/download", (req, res) => {
+ 
+  const { filename } = req.query; 
+  if (!filename) {
+    return res.status(400).json({ error: "Filename is required" });
+  }
+
+  const filePath = path.normalize(path.join(__dirname, "..", filename)).replace(/\\/g, "/");
+
+  if (!fs.existsSync(filePath)) {
+    console.error("File not found:", filePath);
+    return res.status(404).json({ error: "File not found" });
+  }
+
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      console.error("Error downloading file:", err);
+      res.status(500).json({ error: "Failed to download file" });
+    }
+  });
+});
+
 module.exports = uploadRouter;

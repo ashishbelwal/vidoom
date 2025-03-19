@@ -161,7 +161,7 @@ const TimelineMarkers = ({
       <motion.div
         className={`absolute top-0  w-4 h-4 rotate-180 translate-x-[-50%]  text-white`}
         animate={{
-          left: `${currentPosition + 12}px`,
+          left: `${currentPosition + 3}px`,
         }}
         transition={{
           speed: 10,

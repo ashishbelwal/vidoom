@@ -55,10 +55,12 @@ const ControlOptions = ({
         <Tabs aria-label="Options" variant="bordered">
           <Tab key="photos" title="Upload">
             <div className="w-full h-full flex flex-col gap-4">
+              <hr className="border-white/10" />
               <Upload />
               <VideoFilesList
                 setSelectedVideo={setSelectedVideo}
                 updatedKey={seed}
+                selectedVideo={selectedVideo}
               />
             </div>
           </Tab>
@@ -69,17 +71,26 @@ const ControlOptions = ({
                   Please select a video to edit
                 </p>
               )}
+              <hr className="border-white/10" />
               <Button
                 onPress={() => setClipVideo(!clipVideo)}
-                className="max-w-fit"
+                className="max-w-fit rounded-md"
                 isDisabled={!selectedVideo?.videoName}
+                variant="bordered"
               >
                 {clipVideo ? "Exit" : "Clip Video"}
               </Button>
             </div>
-            {clipVideo && (
-              <Button onPress={() => trimVideo()}>Trim Video</Button>
-            )}
+            <div className="w-full h-full flex flex-col gap-4 border-t border-white/10 pt-4 mt-4">
+              {clipVideo && (
+                <Button
+                  className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-md"
+                  onPress={() => trimVideo()}
+                >
+                  Trim Video
+                </Button>
+              )}
+            </div>
           </Tab>
         </Tabs>
       </div>

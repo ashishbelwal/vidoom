@@ -63,6 +63,7 @@ export default function Upload() {
         id="video-upload"
         type="file"
         multiple
+        label="Upload Video"
         onChange={handleFileChange}
       />
       {error && <p className="text-red-500 text-sm text-left mt-2">{error}</p>}

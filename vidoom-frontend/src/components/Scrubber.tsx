@@ -87,27 +87,22 @@ const Scrubber = ({
             <motion.div
               className={`absolute top-0  w-[1px] h-full bg-white`}
               animate={{
-                left: `${currentPosition + 8}px`,
+                left: `${currentPosition}px`,
               }}
               transition={{
                 speed: 10,
               }}
             ></motion.div>
-            <Frames
-              frameImages={frameImages}
-              clipVideo={clipVideo}
-              timeRange={timeRange}
-              setTimeRange={setTimeRange}
-            />
+            <Frames frameImages={frameImages} videoElement={videoElement} />
             {videoElement && clipVideo && (
               <div className="clipVideo">
                 <Slider
-                  className={` max-w-[${duration * 50 + 10}px]`}
+                  className={` w-[${duration * 50}px]`}
                   formatOptions={{ style: "currency", currency: "USD" }}
                   label="Select a budget"
                   maxValue={duration}
                   minValue={0}
-                  step={0.1}
+                  step={0.001}
                   value={timeRange}
                   onChange={(value) => setTimeRange(value as number[])}
                 />

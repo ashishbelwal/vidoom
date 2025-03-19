@@ -12,7 +12,7 @@ function App() {
   const [timeRange, setTimeRange] = useState([0, 0]);
   return (
     <div className="h-screen w-screen overflow-hidden">
-      <Navbar />
+      <Navbar selectedVideo={selectedVideo} />
 
       <div className="flex">
         <VideoEditor
