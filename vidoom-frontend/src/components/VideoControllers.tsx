@@ -1,5 +1,10 @@
 import { Tooltip } from "@heroui/react";
-import { ChevronsLeftIcon, ChevronsRightIcon, PlayIcon } from "lucide-react";
+import {
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  PlayIcon,
+  PauseIcon,
+} from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
 const JUMP_TIME = 5;
@@ -74,11 +79,19 @@ const VideoControllers = ({
           />
         </Tooltip>
         <Tooltip content="Play / Pause" className="bg-[#080808] text-white">
-          <PlayIcon
-            className="w-6 h-6 hover:cursor-pointer focus:outline-none"
-            fill="white"
-            onClick={playPause}
-          />
+          {videoElement.paused ? (
+            <PlayIcon
+              className="w-6 h-6 hover:cursor-pointer focus:outline-none"
+              fill="white"
+              onClick={playPause}
+            />
+          ) : (
+            <PauseIcon
+              className="w-6 h-6 hover:cursor-pointer focus:outline-none"
+              fill="white"
+              onClick={playPause}
+            />
+          )}
         </Tooltip>
         <Tooltip
           content={`+${JUMP_TIME} sec`}
@@ -98,7 +111,9 @@ const VideoControllers = ({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-default-600">{formatTime(duration)}</p>
+            {duration > 0 && (
+              <p className="text-sm text-default-600">{formatTime(duration)}</p>
+            )}
           </div>
         </div>
       </div>

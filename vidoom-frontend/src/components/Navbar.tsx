@@ -1,6 +1,6 @@
-import { Button } from "@heroui/react";
+import { addToast, Button } from "@heroui/react";
 import axios from "axios";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, FilmIcon } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 interface SelectedVideo {
   video: string;
@@ -24,6 +24,17 @@ const Navbar = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      addToast({
+        title: "Downloaded",
+        description: "Video downloaded successfully",
+        color: "success",
+        shouldShowTimeoutProgress: true,
+        classNames: {
+          title: "text-left",
+          base: "bg-[#000000] rounded-md",
+          closeButton: "bg-[#000000]",
+        },
+      });
     } catch (error) {
       console.error("Error downloading file:", error);
     }
@@ -31,8 +42,9 @@ const Navbar = ({ selectedVideo }: { selectedVideo: SelectedVideo }) => {
   return (
     <div className="flex z-40 w-full h-auto items-center justify-center data-[menu-open=true]:border-none sticky top-0 inset-x-0 backdrop-blur-lg data-[menu-open=true]:backdrop-blur-xl backdrop-saturate-150 bg-white/[.90] dark:bg-black/[.65]">
       <div className="z-40 flex gap-4 w-full flex-row relative flex-nowrap items-center justify-between  max-w-8xl border-b border-white/10">
-        <div className="w-[60px] h-[60px] rounded backdrop-blur-lg data-[menu-open=true]:backdrop-blur-xl backdrop-saturate-150 bg-white/[.90] dark:bg-black/[.65] flex items-center justify-center">
-          <p className="text-[30px] font-light">Vi</p>
+        <div className="flex items-center gap-1 w-[60px] h-[60px] ml-2 rounded backdrop-blur-lg data-[menu-open=true]:backdrop-blur-xl backdrop-saturate-150 bg-white/[.90] dark:bg-black/[.65] flex items-center justify-center">
+          <FilmIcon size={20} className="text-blue-500" />
+          <p className="text-[20px] font-light">Vi</p>
         </div>
         <div className="flex gap-4 w-full flex-row relative flex-nowrap items-center justify-end  max-w-8xl pr-4">
           <Button

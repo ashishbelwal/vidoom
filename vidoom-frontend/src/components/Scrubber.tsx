@@ -4,10 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Frames from "./frames";
 import { Slider } from "@heroui/react";
 
-const pixelToSecond = (pixels: number) => {
-  return pixels / 50;
-};
-
 const secondToPixel = (seconds: number) => {
   return seconds * 50;
 };
@@ -30,9 +26,6 @@ const Scrubber = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPosition, setCurrentPosition] = useState(0);
   const [duration, setDuration] = useState(0);
-  const updateVideo = (position: number) => {
-    videoElement.currentTime = pixelToSecond(position);
-  };
 
   useEffect(() => {
     const handleTimeUpdate = () => {
@@ -97,7 +90,8 @@ const Scrubber = ({
             {videoElement && clipVideo && (
               <div className="clipVideo">
                 <Slider
-                  className={` w-[${duration * 50}px]`}
+                  className={` max-w-[${duration * 50}px]`}
+                  style={{ width: `${duration * 50}px` }}
                   formatOptions={{ style: "currency", currency: "USD" }}
                   label="Select a budget"
                   maxValue={duration}
